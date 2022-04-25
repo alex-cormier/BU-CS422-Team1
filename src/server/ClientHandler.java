@@ -164,7 +164,7 @@ public class ClientHandler implements Runnable {
         stmt.executeUpdate(query);
     }
 
-    private void goShopping(Object[] shoppingData) throws SQLException {
+    private void goShopping(Object[] shoppingData) throws SQLException, IOException {
         String username = (String) shoppingData[0];
         Double budget = (Double) shoppingData[1];
 
@@ -172,11 +172,21 @@ public class ClientHandler implements Runnable {
         String query = "SELECT * FROM items WHERE username='" + username + "'";
         ResultSet rs = stmt.executeQuery(query);
 
-        Integer updatedId = new Integer(0), updatedQty = new Integer(0);
+        Integer updatedId = Integer.valueOf(0), updatedQty = Integer.valueOf(0);
         List<ShoppingItem> items = new ArrayList<>();
-
-
         List<ShoppingItem> purchasedItems = ShoppingBudget.goShopping(items, budget, updatedId, updatedQty);
+
+        for (ShoppingItem item : purchasedItems) {
+            if (item.getId() == updatedId) {
+                query = "UPDATE items SET quantity='" + updatedQty + "' WHERE id='" + updatedId + "'";
+                stmt.executeUpdate(query);
+                break;
+            }
+            query = "DELETE * FROM items WHERE id='" + item.getId() + "'";
+            stmt.executeUpdate(query);
+        }
+
+        nOut.writeObject(purchasedItems);
     }
 
     private static void dbc()
