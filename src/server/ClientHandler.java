@@ -89,7 +89,7 @@ public class ClientHandler implements Runnable {
 
     private void writeUser(String[] userData) throws SQLException {
         stmt = c.createStatement();
-        String query = "SELECT * FROM users WHERE uname='" + userData[0] + "'";
+        String query = "SELECT * FROM users WHERE username='" + userData[0] + "'";
         ResultSet rs = stmt.executeQuery(query);
 
         if (!rs.next()) {
