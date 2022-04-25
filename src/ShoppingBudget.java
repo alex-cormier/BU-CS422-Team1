@@ -1,6 +1,6 @@
-package service;
+//package service;
 
-import model.ShoppingItem;
+//import model.ShoppingItem;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package model;
+//package model;
 
 public class ShoppingItem {
     private int id;

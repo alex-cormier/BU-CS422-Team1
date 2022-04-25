@@ -1,9 +1,9 @@
-package server;
+/*package server;
 
 import model.Request;
 import model.ShoppingItem;
 import model.User;
-import service.ShoppingBudget;
+import service.ShoppingBudget;*/
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
