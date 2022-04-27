@@ -11,6 +11,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class ClientHandler implements Runnable {
@@ -165,7 +166,37 @@ public class ClientHandler implements Runnable {
     }
 
     private void goShopping(Object[] shoppingData) throws SQLException, IOException {
-        String username = (String) shoppingData[0];
+        ArrayList<ShoppingItem> shoppingList = (ArrayList<ShoppingItem>) shoppingData[0];
+        Double budget = (Double) shoppingData[1];
+
+        Integer updatedId = Integer.valueOf(0), updatedQty = Integer.valueOf(0);
+        List<ShoppingItem> purchasedItems = ShoppingBudget.goShopping(shoppingList, budget, updatedId, updatedQty);
+
+        Iterator<ShoppingItem> iterator = purchasedItems.iterator();
+        StringBuilder deletionList = new StringBuilder();
+        while (iterator.hasNext()) {
+            ShoppingItem item = iterator.next();
+            if (item.getId() == updatedId) break;
+            deletionList.append(item.getId());
+            if (iterator.hasNext()) deletionList.append(", ");
+        }
+
+        if (purchasedItems.size() > 1 || (purchasedItems.size() == 1 && updatedId == 0)) {
+            stmt = c.createStatement();
+            String query = "DELETE * FROM items WHERE id IN (" + deletionList + ")";
+            stmt.executeUpdate(query);
+        }
+
+        if (updatedId != 0) {
+            stmt = c.createStatement();
+            String query = "UPDATE items SET quantity='" + updatedQty + "' WHERE id='" + updatedId + "'";
+            stmt.executeUpdate(query);
+        }
+
+        Object[] returnLists = new Object[]{shoppingList, purchasedItems};
+        nOut.writeObject(returnLists);
+
+        /*String username = (String) shoppingData[0];
         Double budget = (Double) shoppingData[1];
 
         stmt = c.createStatement();
@@ -186,7 +217,7 @@ public class ClientHandler implements Runnable {
             stmt.executeUpdate(query);
         }
 
-        nOut.writeObject(purchasedItems);
+        nOut.writeObject(purchasedItems);*/
     }
 
     private static void dbc()
