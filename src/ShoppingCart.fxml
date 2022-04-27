@@ -52,6 +52,8 @@
       <Button layoutX="171.0" layoutY="390.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="27.0" text="-" />
       <Button layoutX="140.0" layoutY="431.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="27.0" text="+" />
       <Button layoutX="171.0" layoutY="431.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="27.0" text="-" />
+      <Button layoutX="113.0" layoutY="485.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="84.0" text="Save Item" />
+      <TextArea disable="true" editable="false" layoutX="231.0" layoutY="386.0" prefHeight="184.0" prefWidth="491.0" promptText="Saved Items Will Appear Here">
 
       
             <Font size="17.0" />
