@@ -117,14 +117,19 @@ public class ClientHandler implements Runnable {
         String query = "SELECT * FROM items WHERE username='" + username + "' AND name='" + name + "'";
         ResultSet rs = stmt.executeQuery(query);
 
-        if (!rs.next()) {
-            query = "INSERT INTO items (username, name, price, quantity, priority)" +
-                    "VALUES ('" + username + "', '" + name + "', '" + item.getPrice() + "', '" + item.getQuantity() +
-                    "', '" + item.getPriority() + "')";
-            stmt.executeUpdate(query);
-            c.commit();
-        } else {
-            //THROW EXCEPTION THAT ITEM ALREADY IN USER CART
+        try {
+            if (!rs.next()) {
+                query = "INSERT INTO items (username, name, price, quantity, priority)" +
+                        "VALUES ('" + username + "', '" + name + "', '" + item.getPrice() + "', '" + item.getQuantity() +
+                        "', '" + item.getPriority() + "')";
+                stmt.executeUpdate(query);
+                c.commit();
+                nOut.writeObject(Boolean.valueOf(true));
+            } else {
+                nOut.writeObject(Boolean.valueOf(false));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

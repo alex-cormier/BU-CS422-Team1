@@ -69,7 +69,7 @@ public class SceneController {
 				sendData("getUser", new String[] {user_name, tempPassword});
 				Boolean result = (Boolean) in.readObject();
 				if (result)
-					switchToScene3(event);
+					switchToScene3(event, user_name);
 				else
 					invalidLoginAlert();
 			} catch (IOException | ClassNotFoundException e) {
@@ -153,7 +153,7 @@ public class SceneController {
 		}
 	}
 	
-	private void sendData(String command, Object obj) throws IOException 
+	private void sendData(String command, Object obj) throws IOException
 	{
 		out.writeObject(new Request(command, obj));
 	}
@@ -176,8 +176,13 @@ public class SceneController {
 		stage.setScene(scene);
 		stage.show();
 	}
-	public void switchToScene3(ActionEvent event) throws IOException {
-		root = FXMLLoader.load(getClass().getResource("ShoppingCart.fxml"));
+	public void switchToScene3(ActionEvent event, String username) throws IOException {
+		FXMLLoader loader = new FXMLLoader();
+		loader.setLocation(getClass().getResource("ShoppingCart.fxml"));
+		ShoppingCartController controller = loader.getController();
+		controller.initializeCart(username, out, in);
+
+		root = loader.load();
 		stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 		scene = new Scene(root);
 		stage.setScene(scene);
@@ -230,11 +235,11 @@ public class SceneController {
 	}
 
 	public void invalidLoginAlert() {
-		notMatchingPassword.setAlertType(AlertType.INFORMATION);
-		notMatchingPassword.setTitle("Invalid Login");
-		notMatchingPassword.setContentText("Username and Password are invalid");
-		notMatchingPassword.setHeaderText("Username and Password are invalid");
-		notMatchingPassword.show();
+		invalidLoginAlert.setAlertType(AlertType.INFORMATION);
+		invalidLoginAlert.setTitle("Invalid Login");
+		invalidLoginAlert.setContentText("Username and Password are invalid");
+		invalidLoginAlert.setHeaderText("Username and Password are invalid");
+		invalidLoginAlert.show();
 		System.out.println("Invalid Login");
 
 	}

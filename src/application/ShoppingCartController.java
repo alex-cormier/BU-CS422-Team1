@@ -1,5 +1,7 @@
 package application;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -7,9 +9,14 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.util.List;
+
 
 public class ShoppingCartController {
-
 
     private final String file = "./ShoppingCart.txt";
 
@@ -42,11 +49,76 @@ public class ShoppingCartController {
     @FXML
     private TextArea saveItemCart = new TextArea();
 
-    ShoppingCart itemsPurchasedCart = new ShoppingCart();
+    //ShoppingCart itemsPurchasedCart = new ShoppingCart();
+    //ShoppingCart itemsMissedCart = new ShoppingCart();
 
-    ShoppingCart itemsMissedCart = new ShoppingCart();
+    private String username;
+    private static ObjectOutputStream out;
+    private static ObjectInputStream in;
 
-    public void updateBudget() {
+    private ObservableList<ShoppingItem> shoppingList;
+
+    Alert invalidItemAlert = new Alert(AlertType.NONE);
+
+    public void initializeCart(String username, ObjectOutputStream out, ObjectInputStream in) {
+        this.username = username;
+        this.out = out;
+        this.in = in;
+
+        try {
+            sendData("getItems", username);
+            List<ShoppingItem> returnedList = (List<ShoppingItem>) in.readObject();
+            shoppingList = FXCollections.observableArrayList(returnedList);
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendData(String command, Object obj) throws IOException
+    {
+        out.writeObject(new Request(command, obj));
+    }
+
+    public  void addToCart( ) {
+
+        try {
+            String name = itemTField.getText();
+            double price = Double.parseDouble(priceTField.getText());
+            int quantity = Integer.parseInt(quantTField.getText());
+            int priority = Integer.parseInt(priorTField.getText());
+            ShoppingItem newItem = new ShoppingItem(username, name, price, quantity, priority);
+
+            sendData("addItem", newItem);
+            Boolean result = (Boolean) in.readObject();
+            if (!result)
+                throw new IllegalArgumentException("This item is already in your shopping list.");
+
+            itemTField.setText("");
+            priceTField.setText("");
+            quantTField.setText("0");
+            priorTField.setText("0");
+        } catch (NumberFormatException e) {
+            String warning = "Please enter numeric values for Price, Quantity, and Priority\n" +
+                    "Price may be a decimal number";
+            invalidItemAlert(warning);
+        } catch (IllegalArgumentException e) {
+            invalidItemAlert(e.getMessage());
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void invalidItemAlert(String message) {
+        invalidItemAlert.setAlertType(AlertType.INFORMATION);
+        invalidItemAlert.setTitle("Invalid Item");
+        invalidItemAlert.setContentText(message);
+        invalidItemAlert.setHeaderText("Invalid Item");
+        invalidItemAlert.show();
+        System.out.println("Invalid Login");
+
+    }
+
+    /*public void updateBudget() {
         //Local Variables
         double budget = 0.0;
 
@@ -70,10 +142,10 @@ public class ShoppingCartController {
             alert.setHeaderText("Please enter a valid budget");
             alert.showAndWait();
         }
-    }
+    }*/
 
 
-    public void checkOut() {
+    /*public void checkOut() {
         //Write file of purchased Items and format output in textfile.
         ShoppingCartFileUtilities.write( itemsPurchasedCart, file);
 
@@ -81,10 +153,10 @@ public class ShoppingCartController {
 
         cartOutput.setText( itemsPurchasedCart.createFormattedShoppingCartListGUI() );
 
-    }
+    }*/
 
 
-    public void addQuant() {
+    /*public void addQuant() {
         //Local Variables
         int quantity = 0;
 
@@ -97,9 +169,9 @@ public class ShoppingCartController {
 
         quantTField.setText( "" + quantity );
 
-    }
+    }*/
 
-    public void subQuant() {
+    /*public void subQuant() {
         //Local Variables
         int quantity = 0;
         //Lower Quantity
@@ -112,9 +184,9 @@ public class ShoppingCartController {
 
         quantTField.setText( "" + quantity );
 
-    }
+    }*/
 
-    public void addPrior() {
+    /*public void addPrior() {
         //Local Variables
         int priority = 0;
 
@@ -131,10 +203,10 @@ public class ShoppingCartController {
         priorTField.setText( "" + priority );
 
 
-    }
+    }*/
 
 
-    public void subPrior() {
+    /*public void subPrior() {
         //Local Variables
         int priority = 0;
 
@@ -148,10 +220,9 @@ public class ShoppingCartController {
         priorTField.setText( "" + priority );
 
 
-    }
+    }*/
 
-
-    public  void addToCart( ) {
+    /*public  void addToCart( ) {
 
         Item newItem;
 
@@ -202,8 +273,9 @@ public class ShoppingCartController {
             System.out.println("error adding item to cart");
 
         }
-    }
-    public void userWelcome() {
+    }*/
+
+    /*public void userWelcome() {
         //Allow users to enter name and employee number
         String name  =  shopperName.getText();
         final int number = Integer.parseInt( shopperNumber.getText() );
@@ -219,8 +291,5 @@ public class ShoppingCartController {
 
         shopperName.setEditable(false);
         shopperNumber.setEditable(false);
-
-
-
-    }
+    }*/
 }
