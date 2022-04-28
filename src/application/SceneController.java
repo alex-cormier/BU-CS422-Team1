@@ -53,13 +53,7 @@ public class SceneController {
 
 	// Logic to grab info off of the login page and then send it to the datebase
 	public void submitLoginData(ActionEvent event) {
-
-		try {
-			switchToScene3(event);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		/*String user_name;
+		String user_name;
 		String tempPassword;
 
 		// Will be sending these strings to the database to check for login
@@ -74,7 +68,7 @@ public class SceneController {
 				sendData("getUser", new String[] {user_name, tempPassword});
 				Boolean result = (Boolean) in.readObject();
 				if (result)
-					switchToScene3(event*//*, user_name*//*);
+					switchToScene3(event, user_name);
 				else
 					invalidLoginAlert();
 			} catch (IOException | ClassNotFoundException e) {
@@ -95,7 +89,7 @@ public class SceneController {
 		if (tempPassword.length() < 6) {
 			passwordTooShortAlert();
 
-		}*/
+		}
 	}
 
 	// Logic to submit new users to the database
@@ -157,6 +151,11 @@ public class SceneController {
 			e.printStackTrace();
 		}
 	}
+
+	public void setConnection (ObjectOutputStream out, ObjectInputStream in) {
+		this.out = out;
+		this.in = in;
+	}
 	
 	private void sendData(String command, Object obj) throws IOException
 	{
@@ -181,14 +180,8 @@ public class SceneController {
 		stage.setScene(scene);
 		stage.show();
 	}
-	public void switchToScene3(ActionEvent event/*, String username*/) throws IOException {
-		root = FXMLLoader.load(getClass().getResource("ShoppingCart.fxml"));
-		stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-		scene = new Scene(root);
-		stage.setScene(scene);
-		stage.show();
-
-		/*FXMLLoader loader = new FXMLLoader();
+	public void switchToScene3(ActionEvent event, String username) throws IOException {
+		FXMLLoader loader = new FXMLLoader();
 		loader.setLocation(getClass().getResource("ShoppingCart.fxml"));
 		ShoppingCartController controller = loader.getController();
 		controller.initializeCart(username, out, in);
@@ -197,7 +190,7 @@ public class SceneController {
 		stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 		scene = new Scene(root);
 		stage.setScene(scene);
-		stage.show();*/
+		stage.show();
 	}
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	

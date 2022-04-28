@@ -2,22 +2,30 @@ package application;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.stage.Stage;
+import javafx.util.converter.IntegerStringConverter;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.math.RoundingMode;
 import java.net.Socket;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class ShoppingCartController {
-
-    private final String file = "./ShoppingCart.txt";
-
     @FXML
     private TextField quantTField;
     @FXML
@@ -25,86 +33,71 @@ public class ShoppingCartController {
     @FXML
     private TextField budgetTField;
     @FXML
-    private TextField shopperName;
-    @FXML
-    private TextField shopperNumber;
-    @FXML
     private TextField itemTField;
     @FXML
     private TextField priceTField;
-    @FXML
-    private Button addQuant;
-    @FXML
-    private Button subQuant;
-    @FXML
-    private Button addPrior;
-    @FXML
-    private Button subPrior;
-    @FXML
-    private Button userDetails;
-    @FXML
-    private TextArea cartOutput = new TextArea();
-    @FXML
-    private TextArea saveItemCart = new TextArea();
-
-    //ShoppingCart itemsPurchasedCart = new ShoppingCart();
-    //ShoppingCart itemsMissedCart = new ShoppingCart();
 
     private String username;
     private static ObjectOutputStream out;
     private static ObjectInputStream in;
 
+    private final NumberFormat currency = NumberFormat.getCurrencyInstance();
+
     private ObservableList<ShoppingItem> shoppingList;
+    @FXML private TableView<ShoppingItem> tableView;
+    @FXML private TableColumn<ShoppingItem, Integer> priorityColumn;
+    @FXML private TableColumn<ShoppingItem, String> itemColumn;
+    @FXML private TableColumn<ShoppingItem, Integer> quantityColumn;
+    @FXML private TableColumn<ShoppingItem, Double> priceColumn;
 
     Alert invalidItemAlert = new Alert(AlertType.NONE);
     Alert invalidCheckoutAlert = new Alert(AlertType.NONE);
     Alert purchasedItemsAlert = new Alert(AlertType.NONE);
+    Alert invalidDeletionAlert = new Alert(AlertType.NONE);
 
-    /*public void initialize() {
-        priceTField.setTextFormatter(new TextFormatter<>(change -> {
-            if (priceTField.getText().matches("[0-9]+\\.?[0-9]*|\\.[0-9]+") || priceTField.getText().equals("")) {
-                return change;
-            } else {
-                change.setText("");
-                change.setRange(
-                        change.getRangeStart(),
-                        change.getRangeStart()
-                );
-                return change;
+    public void initialize() {
+        currency.setRoundingMode(RoundingMode.HALF_UP);
+
+        priorityColumn.setCellValueFactory(new PropertyValueFactory<>("priority"));
+        priorityColumn.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+        priorityColumn.setOnEditCommit(event -> {
+            try {
+                int priority = event.getNewValue();
+                if (priority < 1)
+                    throw new IllegalArgumentException();
+                ShoppingItem updatedItem = event.getTableView().getItems().get(event.getTablePosition().getRow());
+                sendData("updateItem", updatedItem);
+                updatedItem.setPriority(priority);
+                shoppingList.sort(null);
+            } catch (IllegalArgumentException e) {
+                tableView.refresh();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        }));
+        });
 
-        //priceTField.setTextFormatter(decFormatter);
-
-        quantTField.setTextFormatter(new TextFormatter<>(change -> {
-            if (change.getText().matches("\\d+") || change.getText().equals("")) {
-                return change;
-            } else {
-                change.setText("");
-                change.setRange(
-                        change.getRangeStart(),
-                        change.getRangeStart()
-                );
-                return change;
+        itemColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
+        priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
+        priceColumn.setCellFactory(param -> new TableCell<>() {
+            @Override
+            public void updateItem(Double price, boolean empty) {
+                if (empty || price == null)
+                    setText(null);
+                else
+                    setText(currency.format(price));
             }
-        }));
+        });
 
-        priorTField.setTextFormatter(new TextFormatter<>(change -> {
-            if (change.getText().matches("\\d+") || change.getText().equals("")) {
-                return change;
-            } else {
-                change.setText("");
-                change.setRange(
-                        change.getRangeStart(),
-                        change.getRangeStart()
-                );
-                return change;
-            }
-        }));
-
-        //quantTField.setTextFormatter(intFormatter);
-        //priorTField.setTextFormatter(intFormatter);
-    }*/
+        //DUMMY TEST DATA
+        ArrayList<ShoppingItem> list = new ArrayList<>();
+        list.add(new ShoppingItem("walker", "food", 10.0, 10, 10));
+        list.add(new ShoppingItem("walker", "drink", 5.5, 5, 5));
+        list.sort(null);
+        shoppingList = FXCollections.observableArrayList(list);
+        tableView.setItems(shoppingList);
+        //
+    }
 
     public void initializeCart(String username, ObjectOutputStream out, ObjectInputStream in) {
         this.username = username;
@@ -115,6 +108,7 @@ public class ShoppingCartController {
             sendData("getItems", username);
             List<ShoppingItem> returnedList = (List<ShoppingItem>) in.readObject();
             shoppingList = FXCollections.observableArrayList(returnedList);
+            tableView.setItems(shoppingList);
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -137,14 +131,14 @@ public class ShoppingCartController {
         int quantity = Integer.parseInt( quantTField.getText() );
         if (quantity == 0) return;
         quantity--;
-        quantTField.setText( "" + quantity );
+        quantTField.setText("" + quantity);
     }
 
     @FXML
     public void increasePriority() {
         int priority = Integer.parseInt( priorTField.getText() );
         priority++;
-        priorTField.setText( "" + priority );
+        priorTField.setText("" + priority);
     }
 
     @FXML
@@ -152,7 +146,7 @@ public class ShoppingCartController {
         int priority = Integer.parseInt(priorTField.getText());
         if (priority == 0) return;
         priority--;
-        priorTField.setText( "" + priority );
+        priorTField.setText("" + priority);
     }
 
     @FXML
@@ -200,7 +194,7 @@ public class ShoppingCartController {
             List<ShoppingItem> purchasedItems = (List<ShoppingItem>) returnedLists[1];
 
             if(!purchasedItems.isEmpty()) {
-                //table.refresh
+                tableView.refresh();
                 purchasedItemsAlert(purchasedItems);
             }
 
@@ -209,6 +203,53 @@ public class ShoppingCartController {
         } catch (IllegalArgumentException | IllegalStateException e) {
             invalidCheckoutAlert(e.getMessage());
         } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void deleteItem() {
+        ShoppingItem item = tableView.getSelectionModel().getSelectedItem();
+        if (item == null) {
+            invalidDeletionAlert("No item was selected.");
+            return;
+        }
+        try {
+            sendData("deleteItem", item.getId());
+            shoppingList.remove(item);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void clearList() {
+        if (shoppingList.isEmpty()) {
+            invalidDeletionAlert("The shopping list is empty.");
+            return;
+        }
+        try {
+            sendData("clearList", username);
+            shoppingList.clear();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void logout(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("SceneController.fxml"));
+            SceneController controller = loader.getController();
+            controller.setConnection(out, in);
+
+            Parent root = loader.load();
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -249,178 +290,12 @@ public class ShoppingCartController {
         System.out.println("Invalid Login");
     }
 
-    /*public void updateBudget() {
-        //Local Variables
-        double budget = 0.0;
-
-        try {
-            //get and set budget
-            budget = Double.parseDouble( budgetTField.getText() );
-            itemsPurchasedCart.setBudget(budget);
-
-            if ( budget > 0 ) {
-
-                budgetTField.setText( "" + budget );
-                budgetTField.setEditable(false);
-
-            }
-
-        }
-        catch ( NumberFormatException e ) {
-
-            Alert alert = new Alert(AlertType.INFORMATION);
-            alert.setTitle("Alert!");
-            alert.setHeaderText("Please enter a valid budget");
-            alert.showAndWait();
-        }
-    }*/
-
-
-    /*public void checkOut() {
-        //Write file of purchased Items and format output in textfile.
-        ShoppingCartFileUtilities.write( itemsPurchasedCart, file);
-
-        itemsPurchasedCart.clear();
-
-        cartOutput.setText( itemsPurchasedCart.createFormattedShoppingCartListGUI() );
-
-    }*/
-
-
-    /*public void addQuant() {
-        //Local Variables
-        int quantity = 0;
-
-        quantity = Integer.parseInt( quantTField.getText() );
-        //User can increase up to a quantity of ten.
-        if ( quantity < 10 ){
-
-            quantity++;
-        }
-
-        quantTField.setText( "" + quantity );
-
-    }*/
-
-    /*public void subQuant() {
-        //Local Variables
-        int quantity = 0;
-        //Lower Quantity
-        quantity = Integer.parseInt( quantTField.getText() );
-
-        if ( quantity > 0 ) {
-
-            quantity--;
-        }
-
-        quantTField.setText( "" + quantity );
-
-    }*/
-
-    /*public void addPrior() {
-        //Local Variables
-        int priority = 0;
-
-        priority = Integer.parseInt( priorTField.getText() );
-
-
-        //Increase priority up to ten
-        if ( priority < 10 ) {
-
-            priority++;
-
-        }
-
-        priorTField.setText( "" + priority );
-
-
-    }*/
-
-
-    /*public void subPrior() {
-        //Local Variables
-        int priority = 0;
-
-        priority = Integer.parseInt( priorTField.getText() );
-        //Decrease priority
-        if ( priority > 0 ){
-
-            priority--;
-        }
-
-        priorTField.setText( "" + priority );
-
-
-    }*/
-
-    /*public  void addToCart( ) {
-
-        Item newItem;
-
-        String name  = "";
-        double price = 0.0;
-        int quantity = 0;
-        int priority = 0;
-
-
-        name     = itemTField.getText();
-        price    = Double.parseDouble( priceTField.getText()  );
-        quantity = Integer.parseInt( quantTField.getText() );
-        priority = Integer.parseInt( priorTField.getText() );
-
-
-        //create a new item
-        newItem = new Item( name, price, quantity, priority );
-
-
-        try  {
-
-            if(itemsPurchasedCart.getBudget() > newItem.getPrice()) {
-                //Add to cart if item is less than budget
-                itemsPurchasedCart.addItem(newItem);
-                cartOutput.setText("Purchased List Items:              \n " + "\n");
-                cartOutput.appendText( itemsPurchasedCart.createFormattedShoppingCartListGUI() );
-
-                itemTField.setText("");
-                priceTField.setText("");
-                quantTField.setText("0");
-                priorTField.setText("0");
-
-            }else {
-                //if item is more than budget, add to missed list
-                itemsMissedCart.saveCartItem(newItem);
-                saveItemCart.setText("Missed List Items:              \n " + "\n");
-                saveItemCart.appendText( itemsMissedCart.createFormattedShoppingCartListGUI() );
-
-                itemTField.setText("");
-                priceTField.setText("");
-                quantTField.setText("0");
-                priorTField.setText("0");
-
-            }
-        }
-        catch ( Exception e ) {
-
-            System.out.println("error adding item to cart");
-
-        }
-    }*/
-
-    /*public void userWelcome() {
-        //Allow users to enter name and employee number
-        String name  =  shopperName.getText();
-        final int number = Integer.parseInt( shopperNumber.getText() );
-
-
-        userDetails.setOnAction(ae->{ shopperName.setText("" + name);});
-        userDetails.setOnAction(ae->{ shopperNumber.setText("" + number);});
-
-        //Welcome User
-        Alert alert = new Alert(AlertType.INFORMATION);
-        alert.setHeaderText(" Welcome " + name + "! \n "+ " \n" + " Rewards number : " + number);
-        alert.show();
-
-        shopperName.setEditable(false);
-        shopperNumber.setEditable(false);
-    }*/
+    private void invalidDeletionAlert(String message) {
+        invalidDeletionAlert.setAlertType(AlertType.INFORMATION);
+        invalidDeletionAlert.setTitle("Cannot Delete Item(s)");
+        invalidDeletionAlert.setContentText(message);
+        invalidDeletionAlert.setHeaderText("Cannot Delete Item(s)");
+        invalidDeletionAlert.show();
+        System.out.println("Invalid Login");
+    }
 }

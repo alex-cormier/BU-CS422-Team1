@@ -1,6 +1,6 @@
 package application;
 
-public class ShoppingItem {
+public class ShoppingItem implements Comparable<ShoppingItem> {
     private int id;
     private String username;
 
@@ -79,5 +79,41 @@ public class ShoppingItem {
 
     public void setPriority(Integer priority) {
         this.priority = priority;
+    }
+
+    //define natural ordering for sorting items
+    public int compareTo(ShoppingItem that) {
+        if (this.priority > that.priority) return 1;
+        if (this.priority < that.priority) return -1;
+        if (Double.compare(this.price, that.price) > 0) return 1;
+        if (Double.compare(this.price, that.price) < 0) return -1;
+        if (this.quantity > that.quantity) return 1;
+        if (this.quantity < that.quantity) return -1;
+        if (this.name.compareTo(that.name) > 1) return 1;
+        if (this.name.compareTo(that.name) < 1) return -1;
+        return 0;
+    }
+
+    //used to determine if an item of the same name
+    //is already in a shopping list (prevent duplicates)
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof ShoppingItem) {
+            ShoppingItem i = (ShoppingItem) o;
+            return this.name.equals(i.name);
+        }
+        return false;
+    }
+
+    //not used in this app
+    //ensure Items treated as equals return same hash code
+    @Override
+    public int hashCode() {
+        return this.name.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s  (%d) ($%,.2f)", name, quantity, price);
     }
 }

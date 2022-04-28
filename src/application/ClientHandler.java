@@ -54,8 +54,6 @@ public class ClientHandler implements Runnable {
             Behavior:
                 Switch statement determines how to process request based on supplied command field
          */
-        Object payload=null;
-        int id;
         switch (r.command)
         {
             case "addUser":
@@ -74,6 +72,9 @@ public class ClientHandler implements Runnable {
                 readItems((String) r.payload);
             case "deleteItem":
                 deleteItem((Integer) r.payload);
+                break;
+            case "clearList":
+                clearList((String) r.payload);
                 break;
             case "goShopping":
                 goShopping((Object[]) r.payload);
@@ -162,6 +163,12 @@ public class ClientHandler implements Runnable {
     private void deleteItem(Integer id) throws SQLException {
         stmt = c.createStatement();
         String query = "DELETE * FROM items WHERE id='" + id + "'";
+        stmt.executeUpdate(query);
+    }
+
+    private void clearList(String username) throws SQLException {
+        stmt = c.createStatement();
+        String query = "DELETE * FROM items WHERE username='" + username + "'";
         stmt.executeUpdate(query);
     }
 

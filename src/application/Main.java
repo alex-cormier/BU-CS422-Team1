@@ -16,9 +16,6 @@ import javafx.scene.Scene;
 
 
 public class Main extends Application {
-	//private static User user;
-
-
 	@Override
 	public void start(Stage primaryStage) {
 		try {
@@ -27,7 +24,7 @@ public class Main extends Application {
 			loader.setLocation(getClass().getResource("LoginPage.fxml"));
 			Parent root = loader.load();
 			SceneController controller = loader.getController();
-			//controller.establishConnection();
+			controller.establishConnection();
 			Scene scene = new Scene(root);
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(scene);
@@ -40,9 +37,7 @@ public class Main extends Application {
 	}
 
 	public static void main(String[] args) {
-		//establishConnection();
 		launch(args);
-
 	}
 
 
