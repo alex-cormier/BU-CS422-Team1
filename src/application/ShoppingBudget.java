@@ -8,10 +8,28 @@ import java.util.List;
 
 public class ShoppingBudget {
 
-    public static List<ShoppingItem> goShopping(List<ShoppingItem> items, Double budget,
-                                                Integer updatedItemId, Integer updatedItemQuantity) {
-        items.sort(null);
+    public static Object[] goShopping(List<ShoppingItem> items, Double budget/*,
+                                                Integer updatedItemId, Integer updatedItemQuantity*/) {
+
         List<ShoppingItem> purchasedItems = new ArrayList<>();
+        for (ShoppingItem item : items) {
+            if (budget >= (item.getPrice() * item.getQuantity())) {
+                item.setQuantity(0);
+                budget -= item.getPrice();
+            } else if (budget >= item.getPrice()) {
+                ShoppingItem purchasedItem = new ShoppingItem(item);
+                int purchasedQuantity = (int) (budget / item.getPrice());
+                int remainingQuantity = item.getQuantity() - purchasedQuantity;
+                purchasedItem.setQuantity(purchasedQuantity);
+                item.setQuantity(remainingQuantity);
+                purchasedItems.add(purchasedItem);
+                break;
+            } else break;
+        }
+        Object[] shoppingResults = new Object[] {items, purchasedItems};
+        return shoppingResults;
+
+        /*List<ShoppingItem> purchasedItems = new ArrayList<>();
         Iterator<ShoppingItem> iterator = items.iterator();
         while (iterator.hasNext()) {
             ShoppingItem item = iterator.next();
@@ -21,7 +39,7 @@ public class ShoppingBudget {
                 iterator.remove();
             } else if (budget >= item.getPrice()) {
                 ShoppingItem purchasedItem = new ShoppingItem(item);
-                updatedItemId = item.getId();
+                updatedItemId = purchasedItem.getId();
 
                 int purchasedQuantity = (int) (budget / item.getPrice());
                 updatedItemQuantity = item.getQuantity() - purchasedQuantity;
@@ -33,7 +51,9 @@ public class ShoppingBudget {
                 break;
             } else break;
         }
-        return purchasedItems;
+        Object[] shoppingResults = new Object[] {purchasedItems, updatedItemId, updatedItemQuantity};
+        return shoppingResults;*/
+        //return purchasedItems;
 
         /*//Lists track which items have been purchased
         //and which can be fully removed from the shopping list

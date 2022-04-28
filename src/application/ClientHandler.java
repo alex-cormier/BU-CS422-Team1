@@ -72,7 +72,7 @@ public class ClientHandler implements Runnable {
                 readItems((String) r.payload);
                 break;
             case "deleteItem":
-                deleteItem((Integer) r.payload);
+                deleteItem((ShoppingItem) r.payload);
                 break;
             case "clearList":
                 clearList((String) r.payload);
@@ -146,6 +146,7 @@ public class ClientHandler implements Runnable {
         String query = "UPDATE items SET item_cost=" + item.getPrice() + ", item_quantity=" + item.getQuantity() +
                 ", item_priority=" + item.getPriority() + " WHERE item_id=" + item.getId();
         stmt.executeUpdate(query);
+        c.commit();
     }
 
     private void readItems(String username) throws SQLException, IOException {
@@ -165,71 +166,44 @@ public class ClientHandler implements Runnable {
         nOut.writeObject(items);
     }
 
-    private void deleteItem(Integer id) throws SQLException {
+    private void deleteItem(ShoppingItem item) throws SQLException {
         stmt = c.createStatement();
-        String query = "DELETE FROM items WHERE item_id=" + id;
+        String query = "DELETE FROM items WHERE item_id=" + item.getId();
         stmt.executeUpdate(query);
+        c.commit();
+        System.out.println("end of delete");
     }
 
     private void clearList(String username) throws SQLException {
         stmt = c.createStatement();
         String query = "DELETE FROM items WHERE username='" + username + "'";
         stmt.executeUpdate(query);
+        c.commit();
     }
 
     private void goShopping(Object[] shoppingData) throws SQLException, IOException {
         List<ShoppingItem> shoppingList = (List<ShoppingItem>) shoppingData[0];
         Double budget = (Double) shoppingData[1];
 
-        Integer updatedId = Integer.valueOf(0), updatedQty = Integer.valueOf(0);
-        List<ShoppingItem> purchasedItems = ShoppingBudget.goShopping(shoppingList, budget, updatedId, updatedQty);
+        //Integer updatedId = Integer.valueOf(0), updatedQty = Integer.valueOf(0);
+        //List<ShoppingItem> purchasedItems = ShoppingBudget.goShopping(shoppingList, budget, updatedId, updatedQty);
+        //int updatedId = 0, updatedQty = 0;
+        //Object[] shoppingResults = ShoppingBudget.goShopping(shoppingList, budget, updatedId, updatedQty);
+//        List<ShoppingItem> purchasedItems = (List<ShoppingItem>) shoppingResults[0];
+//        updatedId = (Integer) shoppingResults[1];
+//        updatedQty = (Integer) shoppingResults[2];
 
-        Iterator<ShoppingItem> iterator = purchasedItems.iterator();
-        StringBuilder deletionList = new StringBuilder();
-        while (iterator.hasNext()) {
-            ShoppingItem item = iterator.next();
-            if (item.getId() == updatedId) break;
-            deletionList.append(item.getId());
-            if (iterator.hasNext()) deletionList.append(", ");
+        Object[] shoppingResults = ShoppingBudget.goShopping(shoppingList, budget);
+        shoppingList = (List<ShoppingItem>) shoppingResults[0];
+        List<ShoppingItem> purchasedItems = (List<ShoppingItem>) shoppingResults[1];
+
+        for (ShoppingItem item : shoppingList) {
+            if (item.getQuantity() == 0) deleteItem(item);
+            else updateItem(item);
         }
 
-        if (purchasedItems.size() > 1 || (purchasedItems.size() == 1 && updatedId == 0)) {
-            stmt = c.createStatement();
-            String query = "DELETE FROM items WHERE item_id IN (" + deletionList + ")";
-            stmt.executeUpdate(query);
-        }
-
-        if (updatedId != 0) {
-            stmt = c.createStatement();
-            String query = "UPDATE items SET item_quantity=" + updatedQty + " WHERE item_id=" + updatedId;
-            stmt.executeUpdate(query);
-        }
-
-        Object[] returnLists = new Object[]{shoppingList, purchasedItems};
-        nOut.writeObject(returnLists);
-
-        /*String username = (String) shoppingData[0];
-        Double budget = (Double) shoppingData[1];
-
-        stmt = c.createStatement();
-        String query = "SELECT * FROM items WHERE username='" + username + "'";
-        ResultSet rs = stmt.executeQuery(query);
-
-        Integer updatedId = Integer.valueOf(0), updatedQty = Integer.valueOf(0);
-        List<ShoppingItem> items = new ArrayList<>();
-        List<ShoppingItem> purchasedItems = ShoppingBudget.goShopping(items, budget, updatedId, updatedQty);
-
-        for (ShoppingItem item : purchasedItems) {
-            if (item.getId() == updatedId) {
-                query = "UPDATE items SET quantity='" + updatedQty + "' WHERE id='" + updatedId + "'";
-                stmt.executeUpdate(query);
-                break;
-            }
-            query = "DELETE * FROM items WHERE id='" + item.getId() + "'";
-            stmt.executeUpdate(query);
-        }
-
-        nOut.writeObject(purchasedItems);*/
+        Object[] result = new Object[] {shoppingList, purchasedItems};
+        nOut.writeObject(shoppingResults);
     }
 
     private static void dbc()

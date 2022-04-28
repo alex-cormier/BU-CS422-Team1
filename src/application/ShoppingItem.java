@@ -41,6 +41,7 @@ public class ShoppingItem implements Comparable<ShoppingItem>, Serializable {
     }
 
     public ShoppingItem(ShoppingItem that) {
+        this.id = that.id;
         this.name = that.name;
         this.price = that.price;
         this.quantity = that.quantity;

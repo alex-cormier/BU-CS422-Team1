@@ -59,22 +59,22 @@ public class ShoppingCartController {
         currency.setRoundingMode(RoundingMode.HALF_UP);
 
         priorityColumn.setCellValueFactory(new PropertyValueFactory<>("priority"));
-        priorityColumn.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+        /*priorityColumn.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
         priorityColumn.setOnEditCommit(event -> {
             try {
                 int priority = event.getNewValue();
                 if (priority < 1)
                     throw new IllegalArgumentException();
                 ShoppingItem updatedItem = event.getTableView().getItems().get(event.getTablePosition().getRow());
-                sendData("updateItem", updatedItem);
                 updatedItem.setPriority(priority);
+                sendData("updateItem", updatedItem);
                 shoppingList.sort(null);
             } catch (IllegalArgumentException e) {
                 tableView.refresh();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        });
+        });*/
 
         itemColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
@@ -165,6 +165,7 @@ public class ShoppingCartController {
                 throw new IllegalArgumentException("This item is already in your shopping list.");
 
             shoppingList.add(newItem);
+            shoppingList.sort(null);
             itemTField.setText("");
             priceTField.setText("");
             quantTField.setText("0");
@@ -191,12 +192,30 @@ public class ShoppingCartController {
                 throw new IllegalStateException("Your shopping list is empty");
 
             Object[] shoppingData = new Object[] {new ArrayList<>(shoppingList), budget};
+
+            /*
+            int updatedId = 0, updatedQty = 0;
+            Object[] shoppingResults = ShoppingBudget.goShopping(shoppingList, budget, updatedId, updatedQty);
+            updatedId = (Integer) shoppingResults[1];
+            updatedQty = (Integer) shoppingResults[2];
+            System.out.println("" + updatedId + updatedQty);
+            */
+
             sendData("goShopping", shoppingData);
             Object[] returnedLists = (Object[]) in.readObject();
-            //shoppingList = (ObservableList<ShoppingItem>) returnedLists[0];
-            System.out.println(returnedLists[0]);
+            /*try {
+                sendData("getItems", username);
+                List<ShoppingItem> returnedList = (List<ShoppingItem>) in.readObject();
+                returnedList.sort(null);
+                shoppingList = FXCollections.observableArrayList(returnedList);
+                tableView.setItems(shoppingList);
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }*/
+            shoppingList = (ObservableList<ShoppingItem>) returnedLists[0];
+            /*System.out.println(returnedLists[0]);
             shoppingList.setAll((List<ShoppingItem>) returnedLists[0]);
-            tableView.refresh();
+            tableView.refresh();*/
             List<ShoppingItem> purchasedItems = (List<ShoppingItem>) returnedLists[1];
 
             if(!purchasedItems.isEmpty()) {
@@ -221,7 +240,7 @@ public class ShoppingCartController {
             return;
         }
         try {
-            sendData("deleteItem", item.getId());
+            sendData("deleteItem", item);
             shoppingList.remove(item);
         } catch (IOException e) {
             e.printStackTrace();
