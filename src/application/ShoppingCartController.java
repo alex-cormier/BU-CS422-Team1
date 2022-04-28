@@ -119,6 +119,7 @@ public class ShoppingCartController {
         try {
             sendData("getItems", this.username);
             ArrayList<ShoppingItem> returnedList = (ArrayList<ShoppingItem>) in.readObject();
+            for (ShoppingItem item : returnedList) System.out.println("Initializer " + item);
             returnedList.sort(null);
             shoppingList = FXCollections.observableArrayList(returnedList);
             tableView.setItems(shoppingList);
@@ -172,10 +173,11 @@ public class ShoppingCartController {
             ShoppingItem newItem = new ShoppingItem(username, name, price, quantity, priority);
 
             sendData("addItem", newItem);
-            Boolean result = (Boolean) in.readObject();
-            if (!result)
+            Integer result = (Integer) in.readObject();
+            if (result == 0)
                 throw new IllegalArgumentException("This item is already in your shopping list.");
 
+            newItem.setId(result);
             shoppingList.add(newItem);
             shoppingList.sort(null);
             itemTField.setText("");
@@ -219,6 +221,7 @@ public class ShoppingCartController {
 
             sendData("goShopping", shoppingData);
             ArrayList<ShoppingItem> purchasedItems = (ArrayList<ShoppingItem>) in.readObject();
+            for (ShoppingItem item : purchasedItems) System.out.println("returned from senddata: " + item);
             /*try {
                 sendData("getItems", username);
                 List<ShoppingItem> returnedList = (List<ShoppingItem>) in.readObject();

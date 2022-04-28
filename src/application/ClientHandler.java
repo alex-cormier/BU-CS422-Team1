@@ -125,14 +125,21 @@ public class ClientHandler implements Runnable {
 
         try {
             if (!rs.next()) {
-                query = "INSERT INTO items (item_name, item_quantity, item_cost, item_priority, username)" +
-                        "VALUES ('" + name + "', " + item.getQuantity() + ", " + item.getPrice() + ", " + item.getPriority() +
-                        ", '" + username + "')";
-                stmt.executeUpdate(query);
-                c.commit();
-                nOut.writeObject(Boolean.valueOf(true));
+                query = "INSERT INTO items (item_name, item_quantity, item_cost, item_priority, username) " +
+                        "VALUES (?, ?, ?, ?, ?) RETURN item_id)";
+                PreparedStatement pstmt = c.prepareStatement(query);
+                pstmt.setObject(1, item.getName());
+                pstmt.setObject(2, item.getQuantity());
+                pstmt.setObject(3, item.getPrice());
+                pstmt.setObject(4, item.getPriority());
+                pstmt.setObject(5, item.getUsername());
+                pstmt.execute();
+                ResultSet rsid = pstmt.getResultSet();
+                rsid.next();
+                int newId = rsid.getInt(1);
+                nOut.writeObject(Integer.valueOf(newId));
             } else {
-                nOut.writeObject(Boolean.valueOf(false));
+                nOut.writeObject(Integer.valueOf(0));
             }
         } catch (IOException e) {
             e.printStackTrace();
