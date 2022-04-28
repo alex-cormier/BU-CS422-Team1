@@ -3,16 +3,14 @@ package application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -59,6 +57,54 @@ public class ShoppingCartController {
     private ObservableList<ShoppingItem> shoppingList;
 
     Alert invalidItemAlert = new Alert(AlertType.NONE);
+    Alert invalidCheckoutAlert = new Alert(AlertType.NONE);
+    Alert purchasedItemsAlert = new Alert(AlertType.NONE);
+
+    /*public void initialize() {
+        priceTField.setTextFormatter(new TextFormatter<>(change -> {
+            if (priceTField.getText().matches("[0-9]+\\.?[0-9]*|\\.[0-9]+") || priceTField.getText().equals("")) {
+                return change;
+            } else {
+                change.setText("");
+                change.setRange(
+                        change.getRangeStart(),
+                        change.getRangeStart()
+                );
+                return change;
+            }
+        }));
+
+        //priceTField.setTextFormatter(decFormatter);
+
+        quantTField.setTextFormatter(new TextFormatter<>(change -> {
+            if (change.getText().matches("\\d+") || change.getText().equals("")) {
+                return change;
+            } else {
+                change.setText("");
+                change.setRange(
+                        change.getRangeStart(),
+                        change.getRangeStart()
+                );
+                return change;
+            }
+        }));
+
+        priorTField.setTextFormatter(new TextFormatter<>(change -> {
+            if (change.getText().matches("\\d+") || change.getText().equals("")) {
+                return change;
+            } else {
+                change.setText("");
+                change.setRange(
+                        change.getRangeStart(),
+                        change.getRangeStart()
+                );
+                return change;
+            }
+        }));
+
+        //quantTField.setTextFormatter(intFormatter);
+        //priorTField.setTextFormatter(intFormatter);
+    }*/
 
     public void initializeCart(String username, ObjectOutputStream out, ObjectInputStream in) {
         this.username = username;
@@ -79,8 +125,38 @@ public class ShoppingCartController {
         out.writeObject(new Request(command, obj));
     }
 
-    public  void addToCart( ) {
+    @FXML
+    public void increaseQuantity() {
+        int quantity = Integer.parseInt( quantTField.getText());
+        quantity++;
+        quantTField.setText( "" + quantity );
+    }
 
+    @FXML
+    public void decreaseQuantity() {
+        int quantity = Integer.parseInt( quantTField.getText() );
+        if (quantity == 0) return;
+        quantity--;
+        quantTField.setText( "" + quantity );
+    }
+
+    @FXML
+    public void increasePriority() {
+        int priority = Integer.parseInt( priorTField.getText() );
+        priority++;
+        priorTField.setText( "" + priority );
+    }
+
+    @FXML
+    public void decreasePriority() {
+        int priority = Integer.parseInt(priorTField.getText());
+        if (priority == 0) return;
+        priority--;
+        priorTField.setText( "" + priority );
+    }
+
+    @FXML
+    private void addToCart() {
         try {
             String name = itemTField.getText();
             double price = Double.parseDouble(priceTField.getText());
@@ -108,6 +184,35 @@ public class ShoppingCartController {
         }
     }
 
+    @FXML
+    private void checkout() {
+        try {
+            Double budget = Double.parseDouble(budgetTField.getText());
+
+            if (budget < 0.0)
+                throw new IllegalArgumentException("Your budget cannot be negative.");
+            if (shoppingList.isEmpty())
+                throw new IllegalStateException("Your shopping list is empty");
+
+            sendData("goShopping", shoppingList);
+            Object[] returnedLists = (Object[]) in.readObject();
+            shoppingList = (ObservableList<ShoppingItem>) returnedLists[0];
+            List<ShoppingItem> purchasedItems = (List<ShoppingItem>) returnedLists[1];
+
+            if(!purchasedItems.isEmpty()) {
+                //table.refresh
+                purchasedItemsAlert(purchasedItems);
+            }
+
+        } catch (NumberFormatException e) {
+            invalidCheckoutAlert("Please enter a numeric value for the Budget.");
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            invalidCheckoutAlert(e.getMessage());
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void invalidItemAlert(String message) {
         invalidItemAlert.setAlertType(AlertType.INFORMATION);
         invalidItemAlert.setTitle("Invalid Item");
@@ -115,7 +220,33 @@ public class ShoppingCartController {
         invalidItemAlert.setHeaderText("Invalid Item");
         invalidItemAlert.show();
         System.out.println("Invalid Login");
+    }
 
+    private void invalidCheckoutAlert(String message) {
+        invalidCheckoutAlert.setAlertType(AlertType.INFORMATION);
+        invalidCheckoutAlert.setTitle("Invalid Checkout");
+        invalidCheckoutAlert.setContentText(message);
+        invalidCheckoutAlert.setHeaderText("Invalid Checkout");
+        invalidCheckoutAlert.show();
+        System.out.println("Invalid Login");
+    }
+
+    private void purchasedItemsAlert(List<ShoppingItem> purchasedItems) {
+        String header = "You purchased the following items:\n\n" +
+                "Item (quantity) (price)\n\n";
+        String footer = "Any items that were not purchased are saved in your shopping list.";
+
+        StringBuilder purchasedMessage = new StringBuilder(header);
+        for (ShoppingItem item : purchasedItems)
+            purchasedMessage.append("- " + item + " " + "\n");
+        purchasedMessage.append("\n" + footer);
+
+        purchasedItemsAlert.setAlertType(AlertType.INFORMATION);
+        purchasedItemsAlert.setTitle("Checkout Complete");
+        purchasedItemsAlert.setContentText(purchasedMessage.toString());
+        purchasedItemsAlert.setHeaderText("Checkout Complete");
+        purchasedItemsAlert.show();
+        System.out.println("Invalid Login");
     }
 
     /*public void updateBudget() {

@@ -166,7 +166,7 @@ public class ClientHandler implements Runnable {
     }
 
     private void goShopping(Object[] shoppingData) throws SQLException, IOException {
-        ArrayList<ShoppingItem> shoppingList = (ArrayList<ShoppingItem>) shoppingData[0];
+        List<ShoppingItem> shoppingList = (List<ShoppingItem>) shoppingData[0];
         Double budget = (Double) shoppingData[1];
 
         Integer updatedId = Integer.valueOf(0), updatedQty = Integer.valueOf(0);

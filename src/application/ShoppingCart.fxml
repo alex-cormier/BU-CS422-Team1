@@ -31,10 +31,10 @@
 		<Label layoutX="11.0" layoutY="331.0" prefHeight="17.0" prefWidth="60.0" text="Price" textFill="#2aab0d" />
 		<Label layoutX="11.0" layoutY="386.0" text="Quantity" textFill="#2aab0d" />
 		<Label layoutX="11.0" layoutY="436.0" text="Priority" textFill="#2aab0d" />
-		<Button layoutX="16.0" layoutY="485.0" mnemonicParsing="false" text="Add To Cart" />
-		<TextField layoutX="87.0" layoutY="326.0" prefHeight="27.0" prefWidth="60.0" promptText="0.00" />
+		<Button layoutX="11.0" layoutY="485.0" mnemonicParsing="false" onAction="#addToCart" prefHeight="27.0" prefWidth="204.0" text="Add To Cart" />
+		<TextField fx:id="priceTField" layoutX="87.0" layoutY="326.0" prefHeight="27.0" prefWidth="60.0" promptText="0.00" />
 		<TextField layoutX="85.0" layoutY="166.0" prefHeight="27.0" prefWidth="129.0" promptText="0.00" />
-		<Button layoutX="83.0" layoutY="203.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="101.0" text="Update Budget" />
+		<Button layoutX="85.0" layoutY="203.0" mnemonicParsing="false" onAction="#checkout" prefHeight="27.0" prefWidth="129.0" text="Go Shopping" />
 		<Label layoutX="11.0" layoutY="162.0" prefHeight="35.0" prefWidth="60.0" text=" Budget " textFill="#2aab0d" />
 		<TextArea disable="true" layoutX="231.0" layoutY="156.0" prefHeight="184.0" prefWidth="491.0" promptText="Your Items Will Appear Here ">
          <font>
@@ -45,18 +45,12 @@
 				<Image url="@grocery%20item.png" />
 			</image>
 		</ImageView>
-		<Button layoutX="11.0" layoutY="547.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="204.0" text="Checkout" textFill="#252323" />
-      <TextField disable="true" editable="false" layoutX="87.0" layoutY="390.0" prefHeight="27.0" prefWidth="39.0" promptText="quantTField" text="0" />
-      <TextField disable="true" editable="false" layoutX="87.0" layoutY="431.0" prefHeight="27.0" prefWidth="39.0" promptText="priorTField" text="0" />
-      <Button layoutX="140.0" layoutY="390.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="27.0" text="+" />
-      <Button layoutX="171.0" layoutY="390.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="27.0" text="-" />
-      <Button layoutX="140.0" layoutY="431.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="27.0" text="+" />
-      <Button layoutX="171.0" layoutY="431.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="27.0" text="-" />
-      <Button layoutX="113.0" layoutY="485.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="84.0" text="Save Item" />
-      <TextArea disable="true" editable="false" layoutX="231.0" layoutY="386.0" prefHeight="184.0" prefWidth="491.0" promptText="Saved Items Will Appear Here">
-         <font>
-            <Font size="17.0" />
-         </font>
-      </TextArea>
+		<Button layoutX="11.0" layoutY="547.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="204.0" text="Logout" textFill="#252323" />
+      <TextField fx:id="quantTField" disable="true" editable="false" layoutX="87.0" layoutY="390.0" prefHeight="27.0" prefWidth="39.0" promptText="quantTField" text="0" />
+      <TextField fx:id="priorTField" disable="true" editable="false" layoutX="87.0" layoutY="431.0" prefHeight="27.0" prefWidth="39.0" promptText="priorTField" text="0" />
+      <Button layoutX="140.0" layoutY="390.0" mnemonicParsing="false" onAction="#increaseQuantity" prefHeight="27.0" prefWidth="27.0" text="+" />
+      <Button layoutX="171.0" layoutY="390.0" mnemonicParsing="false" onAction="#decreaseQuantity" prefHeight="27.0" prefWidth="27.0" text="-" />
+      <Button layoutX="140.0" layoutY="431.0" mnemonicParsing="false" onAction="#increasePriority" prefHeight="27.0" prefWidth="27.0" text="+" />
+      <Button layoutX="171.0" layoutY="431.0" mnemonicParsing="false" onAction="#decreasePriority" prefHeight="27.0" prefWidth="27.0" text="-" />
 	</children>
 </AnchorPane>
