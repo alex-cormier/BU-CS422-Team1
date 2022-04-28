@@ -147,6 +147,7 @@ public class ClientHandler implements Runnable {
                 ", item_priority=" + item.getPriority() + " WHERE item_id=" + item.getId();
         stmt.executeUpdate(query);
         c.commit();
+        System.out.println("update" + item);
     }
 
     private void readItems(String username) throws SQLException, IOException {
@@ -171,7 +172,7 @@ public class ClientHandler implements Runnable {
         String query = "DELETE FROM items WHERE item_id=" + item.getId();
         stmt.executeUpdate(query);
         c.commit();
-        System.out.println("end of delete");
+        System.out.println("delete:" + item);
     }
 
     private void clearList(String username) throws SQLException {
@@ -182,8 +183,11 @@ public class ClientHandler implements Runnable {
     }
 
     private void goShopping(Object[] shoppingData) throws SQLException, IOException {
-        List<ShoppingItem> shoppingList = (List<ShoppingItem>) shoppingData[0];
+        ArrayList<ShoppingItem> shoppingList = (ArrayList<ShoppingItem>) shoppingData[0];
         Double budget = (Double) shoppingData[1];
+
+        for (ShoppingItem item : shoppingList)
+            System.out.println("CLIENT HANDLER - pre shop: " + item);
 
         //Integer updatedId = Integer.valueOf(0), updatedQty = Integer.valueOf(0);
         //List<ShoppingItem> purchasedItems = ShoppingBudget.goShopping(shoppingList, budget, updatedId, updatedQty);
@@ -194,16 +198,22 @@ public class ClientHandler implements Runnable {
 //        updatedQty = (Integer) shoppingResults[2];
 
         Object[] shoppingResults = ShoppingBudget.goShopping(shoppingList, budget);
-        shoppingList = (List<ShoppingItem>) shoppingResults[0];
+        shoppingList = (ArrayList<ShoppingItem>) shoppingResults[0];
         List<ShoppingItem> purchasedItems = (List<ShoppingItem>) shoppingResults[1];
+
+        System.out.println("\nPost Shop Shopping list");
+        for (ShoppingItem item : shoppingList)
+            System.out.println(item);
+        System.out.println("\nPost Shop Purchased list");
+        for (ShoppingItem item : purchasedItems)
+            System.out.println(item);
 
         for (ShoppingItem item : shoppingList) {
             if (item.getQuantity() == 0) deleteItem(item);
             else updateItem(item);
         }
 
-        Object[] result = new Object[] {shoppingList, purchasedItems};
-        nOut.writeObject(shoppingResults);
+        nOut.writeObject(purchasedItems);
     }
 
     private static void dbc()

@@ -115,6 +115,18 @@ public class ShoppingCartController {
         }
     }
 
+    public void initializeCart() {
+        try {
+            sendData("getItems", this.username);
+            ArrayList<ShoppingItem> returnedList = (ArrayList<ShoppingItem>) in.readObject();
+            returnedList.sort(null);
+            shoppingList = FXCollections.observableArrayList(returnedList);
+            tableView.setItems(shoppingList);
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void sendData(String command, Object obj) throws IOException
     {
         out.writeObject(new Request(command, obj));
@@ -191,6 +203,10 @@ public class ShoppingCartController {
             if (shoppingList.isEmpty())
                 throw new IllegalStateException("Your shopping list is empty");
 
+            ArrayList<ShoppingItem> toBePurchased = new ArrayList<>(shoppingList);
+            for (ShoppingItem item : toBePurchased)
+                System.out.println(item);
+
             Object[] shoppingData = new Object[] {new ArrayList<>(shoppingList), budget};
 
             /*
@@ -202,7 +218,7 @@ public class ShoppingCartController {
             */
 
             sendData("goShopping", shoppingData);
-            Object[] returnedLists = (Object[]) in.readObject();
+            ArrayList<ShoppingItem> purchasedItems = (ArrayList<ShoppingItem>) in.readObject();
             /*try {
                 sendData("getItems", username);
                 List<ShoppingItem> returnedList = (List<ShoppingItem>) in.readObject();
@@ -212,15 +228,14 @@ public class ShoppingCartController {
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }*/
-            shoppingList = (ObservableList<ShoppingItem>) returnedLists[0];
             /*System.out.println(returnedLists[0]);
             shoppingList.setAll((List<ShoppingItem>) returnedLists[0]);
             tableView.refresh();*/
-            List<ShoppingItem> purchasedItems = (List<ShoppingItem>) returnedLists[1];
 
             if(!purchasedItems.isEmpty()) {
-                tableView.refresh();
+                //tableView.refresh();
                 purchasedItemsAlert(purchasedItems);
+                initializeCart();
             }
 
         } catch (NumberFormatException e) {

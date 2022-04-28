@@ -117,6 +117,6 @@ public class ShoppingItem implements Comparable<ShoppingItem>, Serializable {
 
     @Override
     public String toString() {
-        return String.format("%s  (%d) ($%,.2f)", name, quantity, price);
+        return String.format("%d %s  (%d) ($%,.2f)", id, name, quantity, price);
     }
 }
