@@ -89,14 +89,14 @@ public class ShoppingCartController {
             }
         });
 
-        //DUMMY TEST DATA
+        /*DUMMY TEST DATA
         ArrayList<ShoppingItem> list = new ArrayList<>();
         list.add(new ShoppingItem("walker", "food", 10.0, 10, 10));
         list.add(new ShoppingItem("walker", "drink", 5.5, 5, 5));
         list.sort(null);
         shoppingList = FXCollections.observableArrayList(list);
         tableView.setItems(shoppingList);
-        //
+        */
     }
 
     public void initializeCart(String username, ObjectOutputStream out, ObjectInputStream in) {
@@ -107,6 +107,7 @@ public class ShoppingCartController {
         try {
             sendData("getItems", username);
             List<ShoppingItem> returnedList = (List<ShoppingItem>) in.readObject();
+            returnedList.sort(null);
             shoppingList = FXCollections.observableArrayList(returnedList);
             tableView.setItems(shoppingList);
         } catch (IOException | ClassNotFoundException e) {
@@ -163,6 +164,7 @@ public class ShoppingCartController {
             if (!result)
                 throw new IllegalArgumentException("This item is already in your shopping list.");
 
+            shoppingList.add(newItem);
             itemTField.setText("");
             priceTField.setText("");
             quantTField.setText("0");
@@ -188,9 +190,13 @@ public class ShoppingCartController {
             if (shoppingList.isEmpty())
                 throw new IllegalStateException("Your shopping list is empty");
 
-            sendData("goShopping", shoppingList);
+            Object[] shoppingData = new Object[] {new ArrayList<>(shoppingList), budget};
+            sendData("goShopping", shoppingData);
             Object[] returnedLists = (Object[]) in.readObject();
-            shoppingList = (ObservableList<ShoppingItem>) returnedLists[0];
+            //shoppingList = (ObservableList<ShoppingItem>) returnedLists[0];
+            System.out.println(returnedLists[0]);
+            shoppingList.setAll((List<ShoppingItem>) returnedLists[0]);
+            tableView.refresh();
             List<ShoppingItem> purchasedItems = (List<ShoppingItem>) returnedLists[1];
 
             if(!purchasedItems.isEmpty()) {
@@ -261,7 +267,7 @@ public class ShoppingCartController {
         invalidItemAlert.setContentText(message);
         invalidItemAlert.setHeaderText("Invalid Item");
         invalidItemAlert.show();
-        System.out.println("Invalid Login");
+        System.out.println("Invalid Item");
     }
 
     private void invalidCheckoutAlert(String message) {
@@ -270,7 +276,7 @@ public class ShoppingCartController {
         invalidCheckoutAlert.setContentText(message);
         invalidCheckoutAlert.setHeaderText("Invalid Checkout");
         invalidCheckoutAlert.show();
-        System.out.println("Invalid Login");
+        System.out.println("Invalid Checkout");
     }
 
     private void purchasedItemsAlert(List<ShoppingItem> purchasedItems) {
@@ -288,7 +294,7 @@ public class ShoppingCartController {
         purchasedItemsAlert.setContentText(purchasedMessage.toString());
         purchasedItemsAlert.setHeaderText("Checkout Complete");
         purchasedItemsAlert.show();
-        System.out.println("Invalid Login");
+        System.out.println("Purchase Complete");
     }
 
     private void invalidDeletionAlert(String message) {
@@ -297,6 +303,6 @@ public class ShoppingCartController {
         invalidDeletionAlert.setContentText(message);
         invalidDeletionAlert.setHeaderText("Cannot Delete Item(s)");
         invalidDeletionAlert.show();
-        System.out.println("Invalid Login");
+        System.out.println("Invalid Deletion");
     }
 }

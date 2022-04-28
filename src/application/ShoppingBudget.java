@@ -10,9 +10,7 @@ public class ShoppingBudget {
 
     public static List<ShoppingItem> goShopping(List<ShoppingItem> items, Double budget,
                                                 Integer updatedItemId, Integer updatedItemQuantity) {
-        //THROW EXCEPTION FOR NEGATIVE BUDGET?
-
-        items.sort(null); //MAYBE NOT NEEDED - ITEMS SHOULD BE SORTED
+        items.sort(null);
         List<ShoppingItem> purchasedItems = new ArrayList<>();
         Iterator<ShoppingItem> iterator = items.iterator();
         while (iterator.hasNext()) {

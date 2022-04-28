@@ -70,6 +70,7 @@ public class ClientHandler implements Runnable {
                 break;
             case "getItems":
                 readItems((String) r.payload);
+                break;
             case "deleteItem":
                 deleteItem((Integer) r.payload);
                 break;
@@ -119,14 +120,14 @@ public class ClientHandler implements Runnable {
         String name = item.getName();
 
         stmt = c.createStatement();
-        String query = "SELECT * FROM items WHERE username='" + username + "' AND name='" + name + "'";
+        String query = "SELECT * FROM items WHERE username='" + username + "' AND item_name='" + name + "'";
         ResultSet rs = stmt.executeQuery(query);
 
         try {
             if (!rs.next()) {
-                query = "INSERT INTO items (username, name, price, quantity, priority)" +
-                        "VALUES ('" + username + "', '" + name + "', '" + item.getPrice() + "', '" + item.getQuantity() +
-                        "', '" + item.getPriority() + "')";
+                query = "INSERT INTO items (item_name, item_quantity, item_cost, item_priority, username)" +
+                        "VALUES ('" + name + "', " + item.getQuantity() + ", " + item.getPrice() + ", " + item.getPriority() +
+                        ", '" + username + "')";
                 stmt.executeUpdate(query);
                 c.commit();
                 nOut.writeObject(Boolean.valueOf(true));
@@ -142,8 +143,8 @@ public class ClientHandler implements Runnable {
         //MAYBE EXCEPTIONS FOR INVALID ITEM DATA
 
         stmt = c.createStatement();
-        String query = "UPDATE items SET price='" + item.getPrice() + "', quantity='" + item.getQuantity() +
-                "', priority='" + item.getPriority() + "' WHERE id='" + item.getId() + "'";
+        String query = "UPDATE items SET item_cost=" + item.getPrice() + ", item_quantity=" + item.getQuantity() +
+                ", item_priority=" + item.getPriority() + " WHERE item_id=" + item.getId();
         stmt.executeUpdate(query);
     }
 
@@ -155,9 +156,9 @@ public class ClientHandler implements Runnable {
         List<ShoppingItem> items = new ArrayList<>();
 
         while (rs.next()) {
-            ShoppingItem item = new ShoppingItem(rs.getInt("id"), rs.getString("username"),
-                    rs.getString("name"), rs.getDouble("price"), rs.getInt("quantity"),
-                    rs.getInt("priority"));
+            ShoppingItem item = new ShoppingItem(rs.getInt("item_id"), rs.getString("username"),
+                    rs.getString("item_name"), rs.getDouble("item_cost"),
+                    rs.getInt("item_quantity"), rs.getInt("item_priority"));
             items.add(item);
         }
 
@@ -166,13 +167,13 @@ public class ClientHandler implements Runnable {
 
     private void deleteItem(Integer id) throws SQLException {
         stmt = c.createStatement();
-        String query = "DELETE * FROM items WHERE id='" + id + "'";
+        String query = "DELETE FROM items WHERE item_id=" + id;
         stmt.executeUpdate(query);
     }
 
     private void clearList(String username) throws SQLException {
         stmt = c.createStatement();
-        String query = "DELETE * FROM items WHERE username='" + username + "'";
+        String query = "DELETE FROM items WHERE username='" + username + "'";
         stmt.executeUpdate(query);
     }
 
@@ -194,13 +195,13 @@ public class ClientHandler implements Runnable {
 
         if (purchasedItems.size() > 1 || (purchasedItems.size() == 1 && updatedId == 0)) {
             stmt = c.createStatement();
-            String query = "DELETE * FROM items WHERE id IN (" + deletionList + ")";
+            String query = "DELETE FROM items WHERE item_id IN (" + deletionList + ")";
             stmt.executeUpdate(query);
         }
 
         if (updatedId != 0) {
             stmt = c.createStatement();
-            String query = "UPDATE items SET quantity='" + updatedQty + "' WHERE id='" + updatedId + "'";
+            String query = "UPDATE items SET item_quantity=" + updatedQty + " WHERE item_id=" + updatedId;
             stmt.executeUpdate(query);
         }
 
@@ -236,7 +237,7 @@ public class ClientHandler implements Runnable {
         try {
             Class.forName("org.postgresql.Driver");
             c = DriverManager
-                    .getConnection("jdbc:postgresql://localhost:5432/alex.cormier");
+                    .getConnection("jdbc:postgresql://shopping-db.cryrvdf1mysl.us-east-1.rds.amazonaws.com:5432/shopping","postgres","password");
             c.setAutoCommit(false);
             System.out.println("[CLIENT HANDLER]: Opened database successfully");
 

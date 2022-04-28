@@ -244,8 +244,8 @@ public class SceneController {
 	public void invalidLoginAlert() {
 		invalidLoginAlert.setAlertType(AlertType.INFORMATION);
 		invalidLoginAlert.setTitle("Invalid Login");
-		invalidLoginAlert.setContentText("Username and Password are invalid");
-		invalidLoginAlert.setHeaderText("Username and Password are invalid");
+		invalidLoginAlert.setContentText("Username and Password are invalid. Please try again.");
+		invalidLoginAlert.setHeaderText("Invalid Login");
 		invalidLoginAlert.show();
 		System.out.println("Invalid Login");
 
@@ -257,6 +257,6 @@ public class SceneController {
 		userExistsAlert.setContentText("A user with this email already exists");
 		userExistsAlert.setHeaderText("User Already Exists");
 		userExistsAlert.show();
-		System.out.println("Invalid Login");
+		System.out.println("User Exists");
 	}
 }

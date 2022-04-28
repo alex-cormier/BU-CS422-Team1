@@ -1,6 +1,8 @@
 package application;
 
-public class ShoppingItem implements Comparable<ShoppingItem> {
+import java.io.Serializable;
+
+public class ShoppingItem implements Comparable<ShoppingItem>, Serializable {
     private int id;
     private String username;
 
@@ -26,9 +28,9 @@ public class ShoppingItem implements Comparable<ShoppingItem> {
         if (price < 0.0)
             throw new IllegalArgumentException("Item price cannot be negative");
         if (quantity < 1)
-            throw new IllegalArgumentException("Item quantity must be > 0");
+            throw new IllegalArgumentException("Please enter a quantity");
         if (priority < 1)
-            throw new IllegalArgumentException("Item priority must be > 0");
+            throw new IllegalArgumentException("Please enter a priority");
 
         this.username = username;
 
