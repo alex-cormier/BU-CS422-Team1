@@ -1,6 +1,6 @@
-package service;
+package application;
 
-import model.ShoppingItem;
+import application.ShoppingItem;
 
 import java.util.ArrayList;
 import java.util.Iterator;

@@ -35,6 +35,7 @@ public class SceneController {
 	Alert inalidEmail = new Alert(AlertType.NONE);
 	Alert notMatchingPassword = new Alert(AlertType.NONE);
 	Alert passwordtooShort = new Alert(AlertType.NONE);
+	Alert invalidLoginAlert = new Alert(AlertType.NONE);
 
 	// LoginPageFXML
 	@FXML
@@ -51,7 +52,7 @@ public class SceneController {
 	PasswordField newuserConfirmPassword = null;
 
 	// Logic to grab info off of the login page and then send it to the datebase
-	public void submitLoginData() {
+	public void submitLoginData(ActionEvent event) {
 
 		String user_name;
 		String tempPassword;
@@ -62,10 +63,18 @@ public class SceneController {
 
 		// Check for valid email alert
 		if (validate(user_name) && tempPassword.length() >= 6) {
-
 			// Replace this with logic to check database for successful login
 			// **********************
-
+			try {
+				sendData("getUser", new String[] {user_name, tempPassword});
+				Boolean result = (Boolean) in.readObject();
+				if (result)
+					switchToScene3(event);
+				else
+					invalidLoginAlert();
+			} catch (IOException | ClassNotFoundException e) {
+				e.printStackTrace();
+			}
 			// Send user_name to database
 			// Send tempPassword to database
 
@@ -99,8 +108,9 @@ public class SceneController {
 		// if the passwords match, and it is a valid email, and the password is atleast 6 characters add to database
 		if (tempPassword.equals(tempconfirmpassword) && validate(user_name) && tempPassword.length() >= 6) {
 
+			String[] info = new String[] {user_name,tempPassword};
 			try {
-				sendData("addUser",new String[] {user_name,tempPassword});
+				sendData("addUser", info);
 			} catch (IOException e) {
 
 				e.printStackTrace();
@@ -216,6 +226,16 @@ public class SceneController {
 		notMatchingPassword.setHeaderText("Passwords do not match");
 		notMatchingPassword.show();
 		System.out.println("Passwords do not match");
+
+	}
+
+	public void invalidLoginAlert() {
+		notMatchingPassword.setAlertType(AlertType.INFORMATION);
+		notMatchingPassword.setTitle("Invalid Login");
+		notMatchingPassword.setContentText("Username and Password are invalid");
+		notMatchingPassword.setHeaderText("Username and Password are invalid");
+		notMatchingPassword.show();
+		System.out.println("Invalid Login");
 
 	}
 

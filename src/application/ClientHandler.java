@@ -1,9 +1,4 @@
-package server;
-
-import model.Request;
-import model.ShoppingItem;
-import model.User;
-import service.ShoppingBudget;
+package application;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -102,15 +97,15 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    private void readUser(String[] userData) throws SQLException {
+    private void readUser(String[] userData) throws SQLException, IOException {
         stmt = c.createStatement();
         String query = "SELECT * FROM users WHERE username='" + userData[0] + "' AND password='" + userData[1] + "'";
         ResultSet rs = stmt.executeQuery(query);
 
         if (rs.next()) {
-            //RETURN AUTHORIZATION
+            nOut.writeObject(Boolean.valueOf(true));
         } else {
-            //RETURN ERROR
+            nOut.writeObject(Boolean.valueOf(false));
         }
     }
 
