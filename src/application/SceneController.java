@@ -32,10 +32,11 @@ public class SceneController {
 	
 	public static final Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$",
 			Pattern.CASE_INSENSITIVE);
-	Alert inalidEmail = new Alert(AlertType.NONE);
+	Alert invalidEmail = new Alert(AlertType.NONE);
 	Alert notMatchingPassword = new Alert(AlertType.NONE);
 	Alert passwordtooShort = new Alert(AlertType.NONE);
 	Alert invalidLoginAlert = new Alert(AlertType.NONE);
+	Alert userExistsAlert = new Alert(AlertType.NONE);
 
 	// LoginPageFXML
 	@FXML
@@ -110,8 +111,9 @@ public class SceneController {
 			String[] info = new String[] {user_name,tempPassword};
 			try {
 				sendData("addUser", info);
-			} catch (IOException e) {
-
+				Boolean result = (Boolean) in.readObject();
+				if (!result) userExistsAlert();
+			} catch (IOException | ClassNotFoundException e) {
 				e.printStackTrace();
 			}
 
@@ -219,11 +221,11 @@ public class SceneController {
 	// Invalid Email Alert
 	public void invalidEmailAlert() {
 		// if the email entered is not valid, throw an alert and do not add to data base
-		inalidEmail.setAlertType(AlertType.INFORMATION);
-		inalidEmail.setTitle("Not a valid email");
-		inalidEmail.setHeaderText("Something went wrong");
-		inalidEmail.setContentText("Please enter a valid email");
-		inalidEmail.show();
+		invalidEmail.setAlertType(AlertType.INFORMATION);
+		invalidEmail.setTitle("Not a valid email");
+		invalidEmail.setHeaderText("Something went wrong");
+		invalidEmail.setContentText("Please enter a valid email");
+		invalidEmail.show();
 		System.out.println("Invalid email");
 	}
 
@@ -248,4 +250,12 @@ public class SceneController {
 
 	}
 
+	public void userExistsAlert() {
+		userExistsAlert.setAlertType(AlertType.INFORMATION);
+		userExistsAlert.setTitle("User Exists");
+		userExistsAlert.setContentText("A user with this email already exists");
+		userExistsAlert.setHeaderText("User Already Exists");
+		userExistsAlert.show();
+		System.out.println("Invalid Login");
+	}
 }

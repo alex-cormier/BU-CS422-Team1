@@ -88,13 +88,17 @@ public class ClientHandler implements Runnable {
         stmt = c.createStatement();
         String query = "SELECT * FROM users WHERE username='" + userData[0] + "'";
         ResultSet rs = stmt.executeQuery(query);
-
-        if (!rs.next()) {
-            query = "INSERT INTO users (username, password) VALUES ('" + userData[0] +"', '" + userData[1] + "')";
-            stmt.executeUpdate(query);
-            c.commit();
-        } else {
-            //THROW EXCEPTION THAT USER EXISTS
+        try {
+            if (!rs.next()) {
+                query = "INSERT INTO users (username, password) VALUES ('" + userData[0] + "', '" + userData[1] + "')";
+                stmt.executeUpdate(query);
+                c.commit();
+                nOut.writeObject(Boolean.valueOf(true));
+            } else {
+                nOut.writeObject(Boolean.valueOf(false));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
