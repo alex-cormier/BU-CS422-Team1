@@ -185,10 +185,11 @@ public class SceneController {
 	public void switchToScene3(ActionEvent event, String username) throws IOException {
 		FXMLLoader loader = new FXMLLoader();
 		loader.setLocation(getClass().getResource("ShoppingCart.fxml"));
+		root = loader.load();
+
 		ShoppingCartController controller = loader.getController();
 		controller.initializeCart(username, out, in);
 
-		root = loader.load();
 		stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 		scene = new Scene(root);
 		stage.setScene(scene);
