@@ -126,7 +126,7 @@ public class ClientHandler implements Runnable {
         try {
             if (!rs.next()) {
                 query = "INSERT INTO items (item_name, item_quantity, item_cost, item_priority, username) " +
-                        "VALUES (?, ?, ?, ?, ?) RETURN item_id)";
+                        "VALUES (?, ?, ?, ?, ?) RETURNING item_id";
                 PreparedStatement pstmt = c.prepareStatement(query);
                 pstmt.setObject(1, item.getName());
                 pstmt.setObject(2, item.getQuantity());
@@ -134,6 +134,7 @@ public class ClientHandler implements Runnable {
                 pstmt.setObject(4, item.getPriority());
                 pstmt.setObject(5, item.getUsername());
                 pstmt.execute();
+                c.commit();
                 ResultSet rsid = pstmt.getResultSet();
                 rsid.next();
                 int newId = rsid.getInt(1);
@@ -174,6 +175,23 @@ public class ClientHandler implements Runnable {
         nOut.writeObject(items);
     }
 
+    private List<ShoppingItem> readItemsInternal(String username) throws SQLException, IOException {
+        stmt = c.createStatement();
+        String query = "SELECT * FROM items WHERE username='" + username + "'";
+        ResultSet rs = stmt.executeQuery(query);
+
+        List<ShoppingItem> items = new ArrayList<>();
+
+        while (rs.next()) {
+            ShoppingItem item = new ShoppingItem(rs.getInt("item_id"), rs.getString("username"),
+                    rs.getString("item_name"), rs.getDouble("item_cost"),
+                    rs.getInt("item_quantity"), rs.getInt("item_priority"));
+            items.add(item);
+        }
+
+        return items;
+    }
+
     private void deleteItem(ShoppingItem item) throws SQLException {
         stmt = c.createStatement();
         String query = "DELETE FROM items WHERE item_id=" + item.getId();
@@ -190,7 +208,7 @@ public class ClientHandler implements Runnable {
     }
 
     private void goShopping(Object[] shoppingData) throws SQLException, IOException {
-        ArrayList<ShoppingItem> shoppingList = (ArrayList<ShoppingItem>) shoppingData[0];
+        List<ShoppingItem> shoppingList = readItemsInternal((String) shoppingData[0]);
         Double budget = (Double) shoppingData[1];
 
         for (ShoppingItem item : shoppingList)

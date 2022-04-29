@@ -177,9 +177,14 @@ public class ShoppingCartController {
             if (result == 0)
                 throw new IllegalArgumentException("This item is already in your shopping list.");
 
+            System.out.println("AFTER SENDDATA CALL");
+            System.out.println(newItem.getId());
+            System.out.println(result);
             newItem.setId(result);
+            System.out.println(newItem.getId());
             shoppingList.add(newItem);
             shoppingList.sort(null);
+            tableView.refresh();
             itemTField.setText("");
             priceTField.setText("");
             quantTField.setText("0");
@@ -209,7 +214,7 @@ public class ShoppingCartController {
             for (ShoppingItem item : toBePurchased)
                 System.out.println(item);
 
-            Object[] shoppingData = new Object[] {new ArrayList<>(shoppingList), budget};
+            Object[] shoppingData = new Object[] {username, budget};
 
             /*
             int updatedId = 0, updatedQty = 0;
