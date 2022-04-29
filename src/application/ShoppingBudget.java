@@ -12,8 +12,11 @@ public class ShoppingBudget {
                                                 Integer updatedItemId, Integer updatedItemQuantity*/) {
 
         List<ShoppingItem> purchasedItems = new ArrayList<>();
+        System.out.println("Starting goShopping:");
         for (ShoppingItem item : items) {
             if (budget >= (item.getPrice() * item.getQuantity())) {
+                ShoppingItem purchasedItem = new ShoppingItem(item);
+                purchasedItems.add(purchasedItem);
                 item.setQuantity(0);
                 budget -= item.getPrice();
             } else if (budget >= item.getPrice()) {
