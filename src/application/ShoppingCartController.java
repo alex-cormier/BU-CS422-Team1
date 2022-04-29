@@ -59,7 +59,7 @@ public class ShoppingCartController {
         currency.setRoundingMode(RoundingMode.HALF_UP);
 
         priorityColumn.setCellValueFactory(new PropertyValueFactory<>("priority"));
-        /*priorityColumn.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+        priorityColumn.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
         priorityColumn.setOnEditCommit(event -> {
             try {
                 int priority = event.getNewValue();
@@ -74,7 +74,7 @@ public class ShoppingCartController {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        });*/
+        });
 
         itemColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
@@ -88,15 +88,6 @@ public class ShoppingCartController {
                     setText(currency.format(price));
             }
         });
-
-        /*DUMMY TEST DATA
-        ArrayList<ShoppingItem> list = new ArrayList<>();
-        list.add(new ShoppingItem("walker", "food", 10.0, 10, 10));
-        list.add(new ShoppingItem("walker", "drink", 5.5, 5, 5));
-        list.sort(null);
-        shoppingList = FXCollections.observableArrayList(list);
-        tableView.setItems(shoppingList);
-        */
     }
 
     public void initializeCart(String username, ObjectOutputStream out, ObjectInputStream in) {
