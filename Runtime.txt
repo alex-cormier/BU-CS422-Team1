@@ -1,4 +1,5 @@
 Copy this code and run it in your terminal in the directory where the .jar exsists
+NOTE YOU MAY NEED TO GO INTO THE PERMISSIONS AND MARK THE .JAR AS EXECUTABLE THE FIRST TIME AFTER DOWNLOADING
 
 java --module-path " replace with location of javaFX sdk locally" --add-modules javafx.controls,javafx.fxml -jar "Replace with Runnable jar.jar"
 
