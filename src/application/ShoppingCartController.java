@@ -249,7 +249,7 @@ public class ShoppingCartController {
     private void logout(ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource("SceneController.fxml"));
+            loader.setLocation(getClass().getResource("LoginPage.fxml"));
             Parent root = loader.load();
 
             SceneController controller = loader.getController();
