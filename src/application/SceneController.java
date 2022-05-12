@@ -37,6 +37,7 @@ public class SceneController {
 	Alert passwordtooShort = new Alert(AlertType.NONE);
 	Alert invalidLoginAlert = new Alert(AlertType.NONE);
 	Alert userExistsAlert = new Alert(AlertType.NONE);
+	Alert userCreatedAlert = new Alert(AlertType.NONE);
 
 	// LoginPageFXML
 	@FXML
@@ -121,6 +122,8 @@ public class SceneController {
 			System.out.println("Sucess! \n New user being added to database");
 			System.out.println("" + "       Username: " + user_name + "\n" + "       password: " + tempPassword + "\n"
 					+ "confirmpassword: " + tempconfirmpassword);
+			//Alert
+			userCreatedAlert();
 		}
 		///Alerts////////////
 		
@@ -256,6 +259,14 @@ public class SceneController {
 		userExistsAlert.setTitle("User Exists");
 		userExistsAlert.setContentText("A user with this email already exists");
 		userExistsAlert.setHeaderText("User Already Exists");
+		userExistsAlert.show();
+		System.out.println("User Exists");
+	}
+	public void userCreatedAlert() {
+		userExistsAlert.setAlertType(AlertType.INFORMATION);
+		userExistsAlert.setTitle("New User Created!");
+		userExistsAlert.setContentText("Please log in");
+		userExistsAlert.setHeaderText("New User Created!");
 		userExistsAlert.show();
 		System.out.println("User Exists");
 	}
