@@ -175,7 +175,7 @@ public class ClientHandler implements Runnable {
 
     private List<ShoppingItem> readItemsInternal(String username) throws SQLException, IOException {
         stmt = c.createStatement();
-        String query = "SELECT * FROM items WHERE username='" + username + "'";
+        String query = "SELECT * FROM items WHERE username='" + username + "' ORDER BY item_priority";
         ResultSet rs = stmt.executeQuery(query);
 
         List<ShoppingItem> items = new ArrayList<>();
