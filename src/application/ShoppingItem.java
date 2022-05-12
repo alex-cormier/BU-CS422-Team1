@@ -3,7 +3,7 @@ package application;
 import java.io.Serializable;
 
 public class ShoppingItem implements Comparable<ShoppingItem>, Serializable {
-    private int id;
+    private Integer id;
     private String username;
 
     private String name;
