@@ -48,7 +48,7 @@ public class ShoppingItem implements Comparable<ShoppingItem>, Serializable {
         this.priority = that.priority;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
