@@ -113,6 +113,7 @@ public class ShoppingCartController {
             returnedList.sort(null);
             shoppingList = FXCollections.observableArrayList(returnedList);
             tableView.setItems(shoppingList);
+            tableView.refresh();
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
