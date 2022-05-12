@@ -110,7 +110,6 @@ public class ShoppingCartController {
         try {
             sendData("getItems", this.username);
             ArrayList<ShoppingItem> returnedList = (ArrayList<ShoppingItem>) in.readObject();
-            for (ShoppingItem item : returnedList) System.out.println("Initializer " + item);
             returnedList.sort(null);
             shoppingList = FXCollections.observableArrayList(returnedList);
             tableView.setItems(shoppingList);
@@ -168,14 +167,11 @@ public class ShoppingCartController {
             if (result == 0)
                 throw new IllegalArgumentException("This item is already in your shopping list.");
 
-            System.out.println("AFTER SENDDATA CALL");
-            System.out.println(newItem.getId());
-            System.out.println(result);
             newItem.setId(result);
-            System.out.println(newItem.getId());
             shoppingList.add(newItem);
             shoppingList.sort(null);
             tableView.refresh();
+
             itemTField.setText("");
             priceTField.setText("");
             quantTField.setText("0");
@@ -201,38 +197,11 @@ public class ShoppingCartController {
             if (shoppingList.isEmpty())
                 throw new IllegalStateException("Your shopping list is empty");
 
-            ArrayList<ShoppingItem> toBePurchased = new ArrayList<>(shoppingList);
-            for (ShoppingItem item : toBePurchased)
-                System.out.println(item);
-
             Object[] shoppingData = new Object[] {username, budget};
-
-            /*
-            int updatedId = 0, updatedQty = 0;
-            Object[] shoppingResults = ShoppingBudget.goShopping(shoppingList, budget, updatedId, updatedQty);
-            updatedId = (Integer) shoppingResults[1];
-            updatedQty = (Integer) shoppingResults[2];
-            System.out.println("" + updatedId + updatedQty);
-            */
-
             sendData("goShopping", shoppingData);
             ArrayList<ShoppingItem> purchasedItems = (ArrayList<ShoppingItem>) in.readObject();
-            for (ShoppingItem item : purchasedItems) System.out.println("returned from senddata: " + item);
-            /*try {
-                sendData("getItems", username);
-                List<ShoppingItem> returnedList = (List<ShoppingItem>) in.readObject();
-                returnedList.sort(null);
-                shoppingList = FXCollections.observableArrayList(returnedList);
-                tableView.setItems(shoppingList);
-            } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
-            }*/
-            /*System.out.println(returnedLists[0]);
-            shoppingList.setAll((List<ShoppingItem>) returnedLists[0]);
-            tableView.refresh();*/
 
             if(!purchasedItems.isEmpty()) {
-                //tableView.refresh();
                 purchasedItemsAlert(purchasedItems);
                 initializeCart();
             }

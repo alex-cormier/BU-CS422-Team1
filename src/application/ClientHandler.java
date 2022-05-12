@@ -148,8 +148,6 @@ public class ClientHandler implements Runnable {
     }
 
     private void updateItem(ShoppingItem item) throws SQLException {
-        //MAYBE EXCEPTIONS FOR INVALID ITEM DATA
-
         stmt = c.createStatement();
         String query = "UPDATE items SET item_cost=" + item.getPrice() + ", item_quantity=" + item.getQuantity() +
                 ", item_priority=" + item.getPriority() + " WHERE item_id=" + item.getId();
@@ -211,27 +209,9 @@ public class ClientHandler implements Runnable {
         List<ShoppingItem> shoppingList = readItemsInternal((String) shoppingData[0]);
         Double budget = (Double) shoppingData[1];
 
-        for (ShoppingItem item : shoppingList)
-            System.out.println("CLIENT HANDLER - pre shop: " + item);
-
-        //Integer updatedId = Integer.valueOf(0), updatedQty = Integer.valueOf(0);
-        //List<ShoppingItem> purchasedItems = ShoppingBudget.goShopping(shoppingList, budget, updatedId, updatedQty);
-        //int updatedId = 0, updatedQty = 0;
-        //Object[] shoppingResults = ShoppingBudget.goShopping(shoppingList, budget, updatedId, updatedQty);
-//        List<ShoppingItem> purchasedItems = (List<ShoppingItem>) shoppingResults[0];
-//        updatedId = (Integer) shoppingResults[1];
-//        updatedQty = (Integer) shoppingResults[2];
-
         Object[] shoppingResults = ShoppingBudget.goShopping(shoppingList, budget);
         shoppingList = (ArrayList<ShoppingItem>) shoppingResults[0];
         List<ShoppingItem> purchasedItems = (List<ShoppingItem>) shoppingResults[1];
-
-        System.out.println("\nPost Shop Shopping list");
-        for (ShoppingItem item : shoppingList)
-            System.out.println(item);
-        System.out.println("\nPost Shop Purchased list");
-        for (ShoppingItem item : purchasedItems)
-            System.out.println(item);
 
         for (ShoppingItem item : shoppingList) {
             if (item.getQuantity() == 0) deleteItem(item);
