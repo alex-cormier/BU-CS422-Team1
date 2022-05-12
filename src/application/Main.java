@@ -39,15 +39,4 @@ public class Main extends Application {
 	public static void main(String[] args) {
 		launch(args);
 	}
-
-
-//	private static void sendData(String command, Object obj) throws IOException 
-//	{
-//		out.writeObject(new Request(command, obj));
-//	}
-//
-//	private static void sendData(Request request) throws IOException 
-//	{
-//		out.writeObject(request);
-//	}
 }
